@@ -65,7 +65,7 @@
 <script src="vendor/jquery/jquery.backstretch.min.js"></script>
 <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="js/authentication.js"></script>
-
+<script src="js/sweetalert.min.js"></script>
 
 <!-- Custom scripts for this template -->
 
@@ -74,25 +74,53 @@
 <?php
 require('db.php');
 include 'class/Authentication.php';
+include  'emailConfiguration.php';
 if (isset($_REQUEST['name'])) {
-    // removes backslashes
     $name = stripslashes($_REQUEST['name']);
-    //escapes special characters in a string
     $name = mysqli_real_escape_string($con, $name);
     $email_address = stripslashes($_REQUEST['email']);
     $email_address = mysqli_real_escape_string($con, $email_address);
     $password = stripslashes($_REQUEST['password2']);
     $password = mysqli_real_escape_string($con, $password);
     $Authentication = new Authentication();
-	$user_id = "uid" .rand(1,1000000);
-	$role_id=2;
-	$activeStatus=1;
-	$banStatus=2;
-    $result = $Authentication->signUp($user_id, $name, $password, $email_address, $role_id ,$activeStatus, $banStatus);
+    $user_id = "uid" .rand(1,1000000);
+    $role_id=2;
+    $activeStatus=1;
+    $banStatus=2;
+    $hash = md5( rand(0,1000) );
+    $verifiedStatus = 0;
+    $message = "
+		Welcome to Piichari!<br/>
+	    Your account has been created, you have to click the following link to activate your account <br/>	 
+		Email: $email_address <br/> 
+		Click on the link:
+		http://$domainIP/verify.php?email=$email_address&hash=$hash";
+    $result = $Authentication->signUp($user_id, $name, $password, $email_address, $role_id ,$activeStatus, $banStatus, $hash, $verifiedStatus);
     if ($result) {
-		header("Location: user.home.php");
+        require_once 'PHPMailer/PHPMailerAutoload.php';
+        $mail = new PHPMailer;
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = $mailUsername;
+        $mail->Password = $mailPassword;
+        $mail->SMTPSecure = 'tls';
+        $mail->Port = 587;
+        $mail->setFrom($mailUsername, 'Piichkari');
+        $mail->addAddress($email_address);
+        $mail->addReplyTo($mailUsername, 'Piichkari');
+        $mail->isHTML(true);
+        $mail->Subject = "Piichkari Registration" ;
+        $mail->Body    = $message;
+        if(!$mail->send()) {
+            echo "<script>alert(\"Email cant be sent. $mail->ErrorInfo;\");</script>";
+        }
+        else {
+            echo "<script>alert(\"Email verification link has been sent to your email\");
+                    window.location = 'index.php';
+                  </script>";
+        }
     }
-	else
-		echo "<script>alert('email already exists')</script>";
+    else echo "<script>swal(\"Error!\", \"Email already exists!\", \"error\");</script>";
 }
 ?>

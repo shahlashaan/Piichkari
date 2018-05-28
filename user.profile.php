@@ -2,45 +2,8 @@
 require('db.php');
 include 'class/User.php';
 include("auth.php");
-//echo $_SESSION['email'];
-if (isset($_POST['name'])){
-	
-	
-	$name = stripslashes($_REQUEST['name']);
-    //escapes special characters in a string
-    $name = mysqli_real_escape_string($con, $name);
-	$checkPassword = stripslashes($_REQUEST['checkPassword']);
-    //escapes special characters in a string
-    $checkPassword = mysqli_real_escape_string($con, $checkPassword);
-	$email_address = $_SESSION['email'];
-	$user = new User();
-	//$email_address = $user->getEmail();
-	$user->changeName($checkPassword, $name, $email_address);
-	
-}
-if (isset($_POST['oldpass'])){
-	
-	$oldpass = stripslashes($_REQUEST['oldpass']);
-	$oldpass = mysqli_real_escape_string($con, $oldpass);
-	$newpassword2 = stripslashes($_REQUEST['newpassword2']);
-	$newpassword2 = mysqli_real_escape_string($con, $newpassword2);
-	$email_address = $_SESSION['email'];
-	$user = new User();
-	//$email_address = $user->getEmail();
-	$user->changePassword($newpassword2, $oldpass, $email_address);
-}
-if (isset($_POST['passwordToDel'])){
-	
-	$passwordToDel = stripslashes($_REQUEST['passwordToDel']);
-	$passwordToDel = mysqli_real_escape_string($con, $passwordToDel);
-	$email_address = $_SESSION['email'];
-	$user = new User();
-	//$email_address = $user->getEmail();
-	$user->deleteAccount($passwordToDel, $email_address);
-}
-
+include ("getInfo.php");
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -58,21 +21,12 @@ if (isset($_POST['passwordToDel'])){
     <link rel="stylesheet" href="css/fontastic.css">
     <link rel="stylesheet" href="css/user.default.css">
 	<script src="js/PasswordCheck.js"></script>
-
-
 </head>
 <body>
 <div class="page">
     <!-- Main Navbar-->
     <header class="header">
         <nav class="navbar">
-            <!-- Search Box-->
-            <div class="search-box">
-                <button class="dismiss"><i class="icon-close"></i></button>
-                <form id="searchForm" action="#" role="search">
-                    <input type="search" placeholder="Search for users..." class="form-control">
-                </form>
-            </div>
             <div class="container-fluid">
                 <div class="navbar-holder d-flex align-items-center justify-content-between">
                     <!-- Navbar Header-->
@@ -84,9 +38,6 @@ if (isset($_POST['passwordToDel'])){
                     </div>
                     <!-- Navbar Menu -->
                     <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
-                        <!-- Search-->
-                        <li class="nav-item d-flex align-items-center"><a id="search" href="#"><i class="icon-search"></i></a></li>
-                        <!-- Logout    -->
                         <li class="nav-item"><a href="logout.php" class="nav-link logout">Logout<i class="fa fa-sign-out"></i></a></li>
                     </ul>
                 </div>
@@ -102,12 +53,18 @@ if (isset($_POST['passwordToDel'])){
             <div class="sidebar-header d-flex align-items-center">
                 <div class="avatar"><img src="img/profile.png" alt="..." class="img-fluid rounded-circle"></div>
                 <div class="title">
-                    <h1 class="h4"><?php echo $_SESSION['email']; ?></h1>
+                    <h1 class="h4"><?php echo $userName; ?></h1>
                 </div>
             </div>
             <!-- Sidebar Navidation Menus-->
             <ul class="list-unstyled">
-                <li><a href="user.home.php"><i class="icon-home"></i>Home </a></li>
+			<?php
+				if($role_id==2){
+					echo '<li><a href="user.home.php"><i class="icon-home"></i>Home </a></li>';
+				}
+				else
+					echo '<li ><a href="admin.home.php"><i class="icon-home"></i>Home </a></li>';
+			?>
                 <li><a href="user.gallery.php"><i class="icon-grid"></i>Gallery</a></li>
                 <li><a href="user.canvas.php"><i class="icon-picture"></i>Canvas</a></li>
                 <li class="active"><a href="user.profile.php"><i class="icon-interface-windows"></i>Profile</a></li>
@@ -135,11 +92,11 @@ if (isset($_POST['passwordToDel'])){
                                     <form  method="post">
                                         <div class="form-group">
                                             <label class="form-control-label">Enter Name</label>
-                                            <input type="text"  name="name" placeholder="Taslima Koly" class="form-control">
+                                            <input type="text"  name="name" placeholder="<?php echo $userName?>" required class="form-control">
                                         </div>
                                         <div class="form-group">
                                             <label class="form-control-label">Enter Password</label>
-                                            <input type="password" name="checkPassword" class="form-control">
+                                            <input type="password" name="checkPassword" class="form-control" required>
                                         </div>
                                         <div class="form-group">
                                             <input type="submit" value="Update" class="btn btn-primary">
@@ -150,16 +107,16 @@ if (isset($_POST['passwordToDel'])){
                             <!-- Delete Account-->
                             <div class="card">
                                 <div class="card-header d-flex align-items-center">
-                                    <h3 class="h4">Delete Account</h3>
+                                    <h3 class="h4">Deactivate Account</h3>
                                 </div>
                                 <div class="card-body">
-                                    <form name="deletePassword" method="post">>
+                                    <form name="deletePassword" method="post">
                                         <div class="form-group">
                                             <label class="form-control-label">Enter Password</label>
-                                            <input type="password" name="passwordToDel" class="form-control">
+                                            <input type="password" name="passwordToDel" class="form-control" required>
                                         </div>
                                         <div class="form-group">
-                                            <input type="submit" value="Delete Account" class="btn btn-primary">
+                                            <input type="submit" value="Deactivate" class="btn btn-primary">
                                         </div>
                                     </form>
                                 </div>
@@ -173,18 +130,18 @@ if (isset($_POST['passwordToDel'])){
                                 </div>
                                 <div class="card-body">
                                     <p>Do you want to change your passsword?</p>
-                                    <form name="passwordChange" method="post">
+                                    <form name="passwordChange" method="post" onSubmit="return checkPasswordModification()">
                                         <div class="form-group">
                                             <label class="form-control-label">Enter Old Password</label>
-                                            <input type="password" name="oldpass" class="form-control">
+                                            <input type="password" name="oldpass" class="form-control" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-control-label">Enter New Password</label>
-                                            <input type="password" name="newpassword1" class="form-control">
+                                            <input type="password" name="newpassword1" class="form-control" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-control-label">Confirm New Password</label>
-                                            <input type="password" name="newpassword2" class="form-control">
+                                            <input type="password" name="newpassword2" class="form-control" required>
                                         </div>
                                         <div class="form-group">
                                             <input type="submit" value="Update" class="btn btn-primary">
@@ -217,10 +174,122 @@ if (isset($_POST['passwordToDel'])){
 <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
 <script src="vendor/jquery.cookie/jquery.cookie.js"> </script>
 <script src="vendor/jquery-validation/jquery.validate.min.js"></script>
-
+<script src="js/authentication.js"></script>
+<script src="js/sweetalert.min.js"></script>
 <!-- Main File-->
 <script src="js/user/front.js"></script>
 
 </body>
 </html>
+<?php
 
+if (isset($_POST['name'])){
+    $name = stripslashes($_REQUEST['name']);
+    //escapes special characters in a string
+    $name = mysqli_real_escape_string($con, $name);
+    $checkPassword = stripslashes($_REQUEST['checkPassword']);
+    //escapes special characters in a string
+    $checkPassword = mysqli_real_escape_string($con, $checkPassword);
+    $email_address = $_SESSION['email'];
+    $user = new User();
+    //$email_address = $user->getEmail();
+    if($user->checkOldpassword($checkPassword,$user_id)==TRUE){
+        if($user->changeName($checkPassword, $name, $email_address)){
+            echo "<script>swal(\"UPDATED\",\"Record updated successfully\",\"success\");
+             </script>";
+            //header('Location: user.profile.php');
+        }
+        else{
+            echo "<script>swal(\"ERROR\",\"Record cannot be updated\",\"error\");
+            </script>";
+        }
+         
+    } else{
+            echo "<script>swal(\"ERROR\",\"Wrong password\",\"error\");
+            </script>";
+        }
+
+        echo "<script type='text/javascript'>
+
+            (function()
+                {
+                  if( window.localStorage )
+                  {
+                    if( !localStorage.getItem( 'firstLoad' ) )
+                    {
+                      localStorage[ 'firstLoad' ] = true;
+                      window.location.reload();
+                    }  
+
+                    else
+                      localStorage.removeItem( 'firstLoad' );
+                  }
+                })();
+                </script>";
+    //echo "<script> window.location.reload(); </script>";
+}
+if (isset($_POST['oldpass'])){
+    
+    $oldpass = stripslashes($_REQUEST['oldpass']);
+    $oldpass = mysqli_real_escape_string($con, $oldpass);
+    $newpassword2 = stripslashes($_REQUEST['newpassword2']);
+    $newpassword2 = mysqli_real_escape_string($con, $newpassword2);
+    $email_address = $_SESSION['email'];
+    $user = new User();
+    //$email_address = $user->getEmail();
+    if($user->checkOldpassword($oldpass,$user_id)){
+        if($user->changePassword($newpassword2, $oldpass, $email_address)){
+
+        }
+    }
+    else{
+            echo "<script>swal(\"ERROR\",\"Wrong password\",\"error\");
+            </script>";
+        }
+     echo "<script type='text/javascript'>
+
+            (function()
+                {
+                  if( window.localStorage )
+                  {
+                    if( !localStorage.getItem( 'firstLoad' ) )
+                    {
+                      localStorage[ 'firstLoad' ] = true;
+                      window.location.reload();
+                    }  
+
+                    else
+                      localStorage.removeItem( 'firstLoad' );
+                  }
+                })();
+                </script>";
+}
+if (isset($_POST['passwordToDel'])){
+    
+    $passwordToDel = stripslashes($_REQUEST['passwordToDel']);
+    $passwordToDel = mysqli_real_escape_string($con, $passwordToDel);
+    $email_address = $_SESSION['email'];
+    $user = new User();
+    //$email_address = $user->getEmail();
+    if($user->checkOldpassword($passwordToDel,$user_id)){
+       if($user->deleteAccount($passwordToDel, $email_address)){
+            echo "<script>
+                var url = \"logout.php\";
+                window.location = url;
+                window.location.replace (url);</script>";
+            //header("Location: logout.php");
+
+       }
+       else{
+         echo "<script>swal(\"Oh no\",\"Couldn't deactivate account\",\"error\");</script>";
+       }
+
+    }
+    else{
+            echo "<script>swal(\"ERROR\",\"Wrong password\",\"error\");
+            </script>";
+        }
+
+}
+
+?>

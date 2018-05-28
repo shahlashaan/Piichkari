@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,7 +28,8 @@
             <div class="center col-sm-6 col-sm-offset-3 form-box ">
                 <div class="form-top">
                     <div class="form-top-left">
-                        <h3>Login to <a href="index.php">Piichkari</a></h3>
+                        <h3>Welcome to <a href="index.php">Piichkari</a></h3>
+                        <p>Need an Account? <a href="signup.php">Sign Up Now!</a></p>
                         <p>Enter Email address and Password to log in:</p>
                     </div>
                     <div class="form-top-right">
@@ -38,16 +40,16 @@
                     <form role="form" action="" method="post" class="login-form">
                         <div class="form-group">
                             <label class="sr-only" for="form-username">Email Adress</label>
-                            <input type="text" name="email" placeholder="Email" class="form-username form-control" id="form-username">
+                            <input type="text" name="email" placeholder="Email" class="form-username form-control" id="form-username" required>
                         </div>
                         <div class="form-group">
                             <label class="sr-only" for="form-password">Password</label>
-                            <input type="password" name="password" placeholder="Password" class="form-password form-control" id="form-password">
+                            <input type="password" name="password" placeholder="Password" class="form-password form-control" id="form-password" required>
                         </div>
-                        <button name="signIn" type="submit" class="btn" onclick="window.location.href='user.home.php'">Sign in!</button>
+                        <button name="signIn" type="submit" class="btn">Sign in!</button>
                     </form>
                     <div class="form-bottom-left">
-                        <p>Need an Account? <a href="signup.php">Sign Up Now!</a></p>
+                        <p>Forgot Password? <a href="forgotPassword.php">Click here!</a></p>
                     </div>
                 </div>
             </div>
@@ -61,13 +63,12 @@
 <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="vendor/jquery/jquery.backstretch.min.js"></script>
 <script src="js/authentication.js"></script>
-
+<script src="js/sweetalert.min.js"></script>
 
 <!-- Custom scripts for this template -->
 
 </body>
 </html>
-
 <?php
 require('db.php');
 include 'class/Authentication.php';
@@ -83,39 +84,39 @@ if (isset($_POST['email'])) {
     $password = mysqli_real_escape_string($con, $password);
     //Checking is user existing in the database or not
     $Authentication = new Authentication();
-	$validation = new Validation();
+    $validation = new Validation();
     $rows = $Authentication->signIn($email_address, $password);
-	$role_id = $validation->checkRole($email_address, $password);
-	$activeStatus = $validation->checkActiveStatus($email_address, $password);
-	$banStatus = $validation->checkBanStatus($email_address, $password);
+    $role_id = $validation->checkRole($email_address, $password);
+    $activeStatus = $validation->checkActiveStatus($email_address, $password);
+    $banStatus = $validation->checkBanStatus($email_address, $password);
     if ($rows == 1) {
         $_SESSION["email"] = $email_address;
         // Redirect user to index.php
-		$user = new User();
-		
-		if($banStatus == 2 && $activeStatus==1)
-		{
-			if($role_id == '2')
-			{
-			header("Location: user.home.php");
-			}
-			if($role_id == '1')
-			{
-			header("Location: admin.home.php");
-			}
-		}
-		else if ($banStatus == 1){
-			echo "You're banned";
-		}
-		else if ($activeStatus == 2){
+        $user = new User();
+        if ($banStatus == 1){
+                $something= '<script>swal("Oh no!", "YOU ARE BANNED!", "error");</script>';
+               echo $something;
+        }
+        
+        else if($banStatus == 2 && $activeStatus==1)
+        {
+            if($role_id == '2')
+            {
+            header("Location: user.home.php");
+            }
+            if($role_id == '1')
+            {
+            header("Location: admin.home.php");
+            }
+        }
+        
+        else if ($activeStatus == 2){
 
-			header("Location: activateAccount.php");
-		}
-    } else {
-		
-        echo "<div class='form'>
-<h3>Username/password is incorrect.</h3>
-<br/>Click here to <a href='signin.php'>Login</a></div>";
-    }
+            header("Location: activateAccount.php");
+        }
+    } else 
+        
+        echo "<script>swal(\"Error!\", \"Wrong credentials or your account has not been verified yet!\", \"error\");</script>";
+    
 } 
     ?>

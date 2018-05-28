@@ -94,7 +94,7 @@
             <div class="col-lg-4 mr-auto text-center">
                 <i class="fa fa-envelope-o fa-3x mb-3 sr-contact"></i>
                 <p>
-                    <a>piichkari123@gmail.com</a>
+                    <a>piichkarishaankoly@gmail.com</a>
                 </p>
             </div>
         </div>

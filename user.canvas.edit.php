@@ -84,7 +84,15 @@ include 'class/Image.php';
             <!-- Page Header-->
             <header class="page-header">
                 <div class="container-fluid">
-                    <h2 class="no-margin-bottom">Canvas</h2>
+                    <?php
+                    $imageName="";
+                    $image = new Image();
+                    $result = $image->getImageInfo($_SESSION['ImageUrl']);
+                    while($record = mysqli_fetch_array($result)){
+                        $imageName = $record['image_name'];
+                    }
+                    ?>
+                    <h2 class="no-margin-bottom">Edit Drawing: <?php echo $imageName?></h2>
                 </div>
             </header>
             <div class="page-content">
@@ -101,11 +109,12 @@ include 'class/Image.php';
                             <button class="dropdown-item" onclick="downloadPNG()">PNG</button>
                             <button class="dropdown-item" onclick="downloadJPG()">JPG</button>
                         </div>
-                        <form method="POST" action="user.canvas.php" style="display: inline;" class="float-right form-inline">
-                            <input class="mr-2 form-control" name="imageTitle" style=" border:1px solid #727B84;" id="imageTitle"
-                                   type="text" required placeholder="Give a Title">
+                       
+                        <form method="POST" action="" style="display: inline;" class="float-right form-inline">
+                            <input class="mr-2 form-control" name="imageTitle"  id="imageTitle"
+                                   type="hidden" value="<?php echo $imageName?>" readonly>
                             <input id = "imageDataURL" type="hidden" name="imageDataURL" value="">
-                            <button type="submit" onclick="save()" name="submitImageToSave" class="btn btn-secondary float-right" style="margin-right: 5px">Save
+                            <button type="submit" onclick="save()" name="submitImageToSave" class="btn btn-secondary float-right" style="margin-right: 5px">Update
                             </button>
                         </form>
 
@@ -142,9 +151,9 @@ include 'class/Image.php';
     <script src="js/react-dom.js"></script>
 
     <!-- Literally Canvas -->
-    <script src="js/literallycanvas.js"></script>
+    <script src="js/literallycanvasEdit.js"></script>
     <!-- Main File-->
-    <script src="js/canvas.js"></script>
+    <script src="js/canvasEdit.js"></script>
     <script src="js/user/front.js"></script>
     <script src="vendor/sweet-alert/sweetalert.min.js"></script>
 </body>
@@ -152,12 +161,46 @@ include 'class/Image.php';
 
 <?php
 if (isset($_POST['imageTitle'])){
+    $oldImgURL = $_SESSION['ImageUrl'];
     $imageTitle = $_REQUEST['imageTitle'];
     $imageDataURL = $_REQUEST['imageDataURL'];
     $image = new Image();
-    $image->saveImage($imageTitle,$imageDataURL,$user_id);
-    if ($image){
-        echo "<script>swal(\"Drawing has been saved.\", \"Check gallery\", \"success\");</script>";
+    $result = $image->updateImage($imageTitle,$imageDataURL,$oldImgURL, $user_id);
+    if ($result){
+        echo "<script>
+        swal(\"Drawing has been updated.\", \"Check gallery\", \"success\")
+        .then((value) => {
+           window.location.href = \"user.gallery.php\";
+         });
+        </script>";
     }
+}
+if (isset($_POST['edit'])) {
+    $imgURL = $_SESSION['ImageUrl'];
+    $image = new Image();
+    echo "
+    <script>
+    var backgroundImage = new Image();
+    backgroundImage.src = '$imgURL';
+
+    var lc = LC.init(
+        document.getElementsByClassName('my-drawing')[0],
+        {
+            imageURLPrefix: 'img/',
+            backgroundShapes: [
+                LC.createShape(
+                    'Image', {x: 0, y: 0, image: backgroundImage, scale: 1})
+            ]
+        }
+    );
+    
+    canvas = document.getElementsByClassName(\"lc-drawing with-gui\")[0].children[1];
+    context = canvas.getContext('2d');
+    canvas.getContext(\"2d\").drawImage(backgroundImage, 0, 0);
+    
+    hideDiv = document.getElementsByClassName(\"color-well\")[2];
+    hideDiv.parentNode.removeChild(hideDiv);
+    </script>";
+
 }
 ?>
