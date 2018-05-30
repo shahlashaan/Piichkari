@@ -2,7 +2,7 @@
 require('db.php');
 include("auth.php");
 include("getInfo.php");
-include("autoReload.php");
+//include("autoReload.php");
 include 'class/Member.php';
 include 'class/Image.php';
 include 'class/LikePost.php';
@@ -48,7 +48,7 @@ if (isset($_POST['Comment'])) {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="refresh" content="<?php echo $sec?>;URL='<?php echo $page?>'">
+   <!--<meta http-equiv="refresh" content="<?php echo $sec?>;URL='<?php echo $page?>'">-->
     <title>Piichkari</title>
     <!-- Bootstrap core CSS -->
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -80,8 +80,8 @@ if (isset($_POST['Comment'])) {
                     <!-- Navbar Menu -->
                     <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
                         <!-- Search-->
-                        <li class="nav-item d-flex align-items-center"><a id="search" href="#"><i
-                                        class="icon-search"></i></a></li>
+                        <!--<li class="nav-item d-flex align-items-center"><a id="search" href="#"><i
+                                        class="icon-search"></i></a></li>-->
                         <!-- Logout    -->
                         <li class="nav-item"><a href="logout.php" class="nav-link logout">Logout<i
                                         class="fa fa-sign-out"></i></a></li>

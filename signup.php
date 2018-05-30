@@ -71,6 +71,36 @@
 
 </body>
 </html>
+<script type="text/javascript">
+    function CheckPassword(password1,password2){
+    
+    var password1Len = password1.value.length;
+    var password2Len = password2.value.length;
+    if (password1Len < 8 || password1Len > 16)
+    {
+         swal("Error","Password should not be empty / length be minimum 8 characters and maximum 16 characters","error");
+        password1.focus();
+        return false;
+    }
+    if (password2.value != password1.value)
+    {
+         swal("Error","password doesn't match","error");
+        password2.focus();
+        return false;
+    }
+    return true; 
+}
+    function checkPasswordSignUp(){
+        var password1 = document.register.password1;
+        var password2 = document.register.password2;
+        if(CheckPassword(password1,password2)){
+            return true;
+        }
+        return false;
+    }
+</script>
+
+
 <?php
 require('db.php');
 include 'class/Authentication.php';

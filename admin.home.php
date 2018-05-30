@@ -33,10 +33,10 @@ if (isset($_POST['ban'])) {
         }
     }
 }if (isset($_POST['unban'])) {
-    if (isset($_POST['reportedEmail'])) {
+    if (isset($_POST['bannedEmail'])) {
 
 
-        $email = stripslashes($_REQUEST['reportedEmail']);
+        $email = stripslashes($_REQUEST['bannedEmail']);
         //escapes special characters in a string
         $email = mysqli_real_escape_string($con, $email);
         $admin = new Admin();
@@ -303,7 +303,7 @@ if (isset($_POST['profile'])) {
                                                         </form>
 
                                                          <form method="POST"  class="pull-right float-left" style="padding-left: 5px">
-                                                        <input type="hidden" name="reportedEmail" value="' . $ban['email_address'] . '">
+                                                        <input type="hidden" name="bannedEmail" value="' . $ban['email_address'] . '">
                                                         <input type="hidden" name="reportID" value="' . $ban['report_id'] . '">
                                                          <input type="submit" class="btn btn-secondary" name="unban" value="Unban">
                                                         </form>

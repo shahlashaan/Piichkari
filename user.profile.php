@@ -2,6 +2,7 @@
 require('db.php');
 include 'class/User.php';
 include("auth.php");
+include("autoReload.php");
 include ("getInfo.php");
 ?>
 
@@ -10,6 +11,7 @@ include ("getInfo.php");
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="refresh" content="<?php echo $sec?>;URL='<?php echo $page?>'">
     <title>Piichkari</title>
     <!-- Bootstrap core CSS -->
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -181,6 +183,37 @@ include ("getInfo.php");
 
 </body>
 </html>
+<script type="text/javascript">
+    function CheckPassword(password1,password2){
+    
+    var password1Len = password1.value.length;
+    var password2Len = password2.value.length;
+    if (password1Len < 8 || password1Len > 16)
+    {
+         swal("Error","Password should not be empty / length be minimum 8 characters and maximum 16 characters","error");
+        password1.focus();
+        return false;
+    }
+    if (password2.value != password1.value)
+    {
+         swal("Error","password doesn't match","error");
+        password2.focus();
+        return false;
+    }
+    return true; 
+}
+    function checkPasswordModification(){
+    
+    var password1 = document.passwordChange.newpassword1;
+    var password2 = document.passwordChange.newpassword2;
+
+    if(CheckPassword(password1,password2)){
+        return true;
+    }
+    return false;
+}
+</script>
+
 <?php
 
 if (isset($_POST['name'])){
@@ -209,7 +242,7 @@ if (isset($_POST['name'])){
             </script>";
         }
 
-        echo "<script type='text/javascript'>
+       /* echo "<script type='text/javascript'>
 
             (function()
                 {
@@ -225,7 +258,7 @@ if (isset($_POST['name'])){
                       localStorage.removeItem( 'firstLoad' );
                   }
                 })();
-                </script>";
+                </script>";*/
     //echo "<script> window.location.reload(); </script>";
 }
 if (isset($_POST['oldpass'])){
@@ -237,16 +270,20 @@ if (isset($_POST['oldpass'])){
     $email_address = $_SESSION['email'];
     $user = new User();
     //$email_address = $user->getEmail();
-    if($user->checkOldpassword($oldpass,$user_id)){
-        if($user->changePassword($newpassword2, $oldpass, $email_address)){
-
+    if($user->checkOldpassword($oldpass,$user_id)==TRUE){
+        if($user->changePassword($newpassword2, $oldpass, $email_address)==TRUE){
+            echo "<script>swal(\"UPDATED\",\"password updated successfully\",\"success\");
+             </script>";
         }
-    }
-    else{
+        else{
+            echo "<script>swal(\"ERROR\",\"password cannot be updated\",\"error\");
+            </script>";
+        }
+    } else{
             echo "<script>swal(\"ERROR\",\"Wrong password\",\"error\");
             </script>";
         }
-     echo "<script type='text/javascript'>
+    /* echo "<script type='text/javascript'>
 
             (function()
                 {
@@ -262,7 +299,7 @@ if (isset($_POST['oldpass'])){
                       localStorage.removeItem( 'firstLoad' );
                   }
                 })();
-                </script>";
+                </script>";*/
 }
 if (isset($_POST['passwordToDel'])){
     
