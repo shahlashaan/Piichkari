@@ -2,7 +2,6 @@
 require('db.php');
 include 'class/User.php';
 include("auth.php");
-include("autoReload.php");
 include ("getInfo.php");
 ?>
 
@@ -11,7 +10,6 @@ include ("getInfo.php");
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="refresh" content="<?php echo $sec?>;URL='<?php echo $page?>'">
     <title>Piichkari</title>
     <!-- Bootstrap core CSS -->
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -242,7 +240,7 @@ if (isset($_POST['name'])){
             </script>";
         }
 
-       /* echo "<script type='text/javascript'>
+       echo "<script type='text/javascript'>
 
             (function()
                 {
@@ -258,7 +256,7 @@ if (isset($_POST['name'])){
                       localStorage.removeItem( 'firstLoad' );
                   }
                 })();
-                </script>";*/
+                </script>";
     //echo "<script> window.location.reload(); </script>";
 }
 if (isset($_POST['oldpass'])){
